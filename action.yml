@@ -1,48 +1,103 @@
-name: 'Deploy React Frontend to EC2'
-description: 'Uploads React build to EC2 and restarts nginx'
+# name: 'Deploy React Frontend to EC2'
+# description: 'Uploads React build to EC2 and restarts nginx'
 
-secrets:
+# secrets:
+#   host:
+#     required: true
+#   username:
+#     required: true
+#   key:
+#     required: true
+# inputs:
+#   deploy-path:
+#     default: /var/www/html
+#   temp-path:
+#     required: true
+
+# runs:
+#   using: "composite"
+#   steps:
+#     - name: Install Dependencies
+#       run: npm install --legacy-peer-deps
+#       shell: bash
+
+#     - name: Build React App
+#       run: npm run build
+#       shell: bash
+      
+#     - name: Upload build to EC2
+#       uses: appleboy/scp-action@v0.1.4
+#       with:
+#         host: ${{ secrets.host }}
+#         username: ${{ secrets.username }}
+#         key: ${{ secrets.key }}
+#         source: "build"
+#         target: ${{ inputs.temp-path }}
+
+#     - name: Move and restart nginx
+#       uses: appleboy/ssh-action@v0.1.6
+#       with:
+#         host: ${{ secrets.host }}
+#         username: ${{ secrets.username }}
+#         key: ${{ secrets.key }}
+        
+#         script: |
+#           sudo rm -f ${{ inputs.deploy-path }}/index.nginx-debian.html
+#           sudo rm -rf ${{ inputs.deploy-path }}/*
+#           sudo cp -r ${{ inputs.temp-path }}/build/* ${{ inputs.deploy-path }}/
+#           sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
+#           sudo chmod -R 755 ${{ inputs.deploy-path }}
+#           sudo systemctl restart nginx
+
+
+# deploy-frontend/action.yml
+name: Deploy React Front-end to EC2
+description: Upload the React production build to an EC2 instance and restart nginx
+
+inputs:
   host:
+    description: EC2 public DNS or IP
     required: true
   username:
+    description: SSH user (e.g. ubuntu, ec2-user)
     required: true
   key:
+    description: Private SSH key contents (use a GitHub Secret in the workflow)
     required: true
-inputs:
   deploy-path:
+    description: Path on the server where the site must finally live
     default: /var/www/html
   temp-path:
+    description: Temporary path to copy the build directory into
     required: true
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Install Dependencies
+    - name: Install dependencies
       run: npm install --legacy-peer-deps
       shell: bash
 
-    - name: Build React App
+    - name: Build React app
       run: npm run build
       shell: bash
-      
+
     - name: Upload build to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
-        host: ${{ secrets.host }}
-        username: ${{ secrets.username }}
-        key: ${{ secrets.key }}
-        source: "build"
-        target: ${{ inputs.temp-path }}
+        host:      ${{ inputs.host }}
+        username:  ${{ inputs.username }}
+        key:       ${{ inputs.key }}
+        source:    build
+        target:    ${{ inputs.temp-path }}
 
-    - name: Move and restart nginx
+    - name: Move into web root & restart nginx
       uses: appleboy/ssh-action@v0.1.6
       with:
-        host: ${{ secrets.host }}
-        username: ${{ secrets.username }}
-        key: ${{ secrets.key }}
-        
+        host:      ${{ inputs.host }}
+        username:  ${{ inputs.username }}
+        key:       ${{ inputs.key }}
         script: |
-          sudo rm -f ${{ inputs.deploy-path }}/index.nginx-debian.html
           sudo rm -rf ${{ inputs.deploy-path }}/*
           sudo cp -r ${{ inputs.temp-path }}/build/* ${{ inputs.deploy-path }}/
           sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
