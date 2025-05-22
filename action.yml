@@ -48,7 +48,11 @@
 #           sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
 #           sudo chmod -R 755 ${{ inputs.deploy-path }}
 #           sudo systemctl restart nginx
-
+# sudo rm -rf ${{ inputs.deploy-path }}/*
+#           sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
+#           sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
+#           sudo chmod -R 755 ${{ inputs.deploy-path }}
+# sudo systemctl restart nginx
 
 # deploy-frontend/action.yml
 name: Deploy React Front-end to EC2
@@ -98,8 +102,5 @@ runs:
         username:  ${{ inputs.username }}
         key:       ${{ inputs.key }}
         script: |
-          sudo rm -rf ${{ inputs.deploy-path }}/*
-          sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
-          sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
-          sudo chmod -R 755 ${{ inputs.deploy-path }}
-          sudo systemctl restart nginx
+          sudo systemctl restart apache2
+          
