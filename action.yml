@@ -70,7 +70,7 @@ inputs:
     required: true
   deploy-path:
     description: Path on the server where the site must finally live
-    default: /var/www/html
+    default: true
   target:
     description: Temporary path to copy the build directory into
     required: true
