@@ -65,7 +65,8 @@ inputs:
   username:
     description: SSH user (e.g. ubuntu, ec2-user)
     required: true
-  key:
+  #key:
+  password:
     description: Private SSH key contents (use a GitHub Secret in the workflow)
     required: true
   deploy-path:
@@ -91,7 +92,9 @@ runs:
       with:
         host:      ${{ inputs.host }}
         username:  ${{ inputs.username }}
-        key:       ${{ inputs.key }}
+        #key:       ${{ inputs.key }}
+        password:  ${{ inputs.PASSWORD }}
+        port:      22
         source:    build
         target:    ${{ inputs.target }}
 
@@ -100,7 +103,9 @@ runs:
       with:
         host:      ${{ inputs.host }}
         username:  ${{ inputs.username }}
-        key:       ${{ inputs.key }}
+       # key:       ${{ inputs.key }}
+        password:  ${{ inputs.PASSWORD }}
+        port:      22
         script: |
           sudo rm -rf ${{ inputs.deploy-path }}/*
           sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
