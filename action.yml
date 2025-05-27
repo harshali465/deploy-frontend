@@ -95,8 +95,8 @@ runs:
         #key:       ${{ inputs.key }}
         password:  ${{ inputs.PASSWORD }}
         port:      22
-        source:    build
-        target:    ${{ inputs.target }}
+        source:    ./build/
+        target:    ${{ inputs.target }}/build
 
     - name: Move into web root & restart nginx
       uses: appleboy/ssh-action@v0.1.6
