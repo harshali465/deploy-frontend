@@ -95,8 +95,8 @@ runs:
         #key:       ${{ inputs.key }}
         password:  ${{ inputs.PASSWORD }}
         port:      22
-        source:    ./build/
-        target:    ${{ inputs.target }}/build
+        source:    build
+        target:    ${{ inputs.target }}
 
     - name: Move into web root & restart nginx
       uses: appleboy/ssh-action@v0.1.6
@@ -108,6 +108,6 @@ runs:
         port:      22
         script: |
           sudo rm -rf ${{ inputs.deploy-path }}/*
-          sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
+          sudo cp -r ${{ inputs.target }}/* ${{ inputs.deploy-path }}/
           sudo systemctl restart apache2
           
