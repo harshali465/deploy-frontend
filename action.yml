@@ -110,7 +110,7 @@ runs:
           sudo rm -rf ${{ inputs.deploy-path }}/*
           sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
          
-          sudo chown -R www-data:www-data ${{ inputs.deploy-path }}/
-          sudo chmod -R 755 ${{ inputs.deploy-path }}/
+          sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
+          sudo chmod -R 755 ${{ inputs.deploy-path }}
           sudo systemctl restart apache2
           
