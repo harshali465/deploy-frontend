@@ -54,6 +54,24 @@
 #           sudo chmod -R 755 ${{ inputs.deploy-path }}
 # sudo systemctl restart nginx
 
+#*********************************************************
+# script: |
+#           sudo rm -rf ${{ inputs.deploy-path }}/*
+#           sudo cp -a ${{ inputs.target }}/build/. ${{ inputs.deploy-path }}/
+         
+#           sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
+#           sudo chmod -R 755 ${{ inputs.deploy-path }}
+#           # Verify deployment
+#           if [ ! -f "${{ inputs.deploy-path }}/index.html" ]; then
+#             echo "Error: index.html not found in deployment directory!"
+#             exit 1
+#           fi
+          
+#           # Test Apache config before restart
+#           sudo apache2ctl configtest || exit 1
+#           sudo systemctl restart apache2
+#           echo "Deployment completed successfully"
+#**********************************************************************
 # deploy-frontend/action.yml
 name: Deploy React Front-end to EC2
 description: Upload the React production build to an EC2 instance and restart nginx
@@ -71,7 +89,7 @@ inputs:
     required: true
   deploy-path:
     description: Path on the server where the site must finally live
-    default: true
+    required: true
   target:
     description: Temporary path to copy the build directory into
     required: true
@@ -93,9 +111,9 @@ runs:
         host:      ${{ inputs.host }}
         username:  ${{ inputs.username }}
         #key:       ${{ inputs.key }}
-        password:  ${{ inputs.PASSWORD }}
+        password:  ${{ inputs.password }}
         port:      22
-        source:    build
+        source:    build/*
         target:    ${{ inputs.target }}
 
     - name: Move into web root & restart nginx
@@ -104,13 +122,31 @@ runs:
         host:      ${{ inputs.host }}
         username:  ${{ inputs.username }}
        # key:       ${{ inputs.key }}
-        password:  ${{ inputs.PASSWORD }}
+        password:  ${{ inputs.password }}
         port:      22
         script: |
-          sudo rm -rf ${{ inputs.deploy-path }}/*
-          sudo cp -r ${{ inputs.target }}/build/* ${{ inputs.deploy-path }}/
-         
-          sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
-          sudo chmod -R 755 ${{ inputs.deploy-path }}
-          sudo systemctl restart apache2
-          
+          # List contents before deleting (optional sanity check)
+            echo "Before cleanup - contents of ${{ inputs.deploy-path }}:"
+            ls -la ${{ inputs.deploy-path }}
+
+            # Clean up the target directory
+            sudo rm -rf ${{ inputs.deploy-path }}/*
+            echo "After cleanup - contents of ${{ inputs.deploy-path }}:"
+            ls -la ${{ inputs.deploy-path }}
+
+            # Copy new build files
+            sudo cp -a ${{ inputs.target }}/build/. ${{ inputs.deploy-path }}/
+
+            # List contents after copy
+            echo "After copying - contents of ${{ inputs.deploy-path }}:"
+            ls -la ${{ inputs.deploy-path }}
+
+            # Apply permissions
+            sudo chown -R www-data:www-data ${{ inputs.deploy-path }}
+            sudo chmod -R 755 ${{ inputs.deploy-path }}
+
+            # Final list
+            echo "Final permissions and contents at ${{ inputs.deploy-path }}:"
+            ls -la ${{ inputs.deploy-path }}
+
+        
